@@ -36,17 +36,30 @@ class PHP_CodeCoverage_Report_HTML
     private $highLowerBound;
 
     /**
+     * @var string
+     */
+    private $absoluteRoot;
+    /**
+     * @var string
+     */
+    private $projectPrefix;
+    
+    /**
      * Constructor.
      *
      * @param int    $lowUpperBound
      * @param int    $highLowerBound
      * @param string $generator
+     * @param string  $absoluteRoot Optional: root path of the sources under analysis
+     * @param string  $projectPrefix Optional: name of project, to display as replacement for absoluteRoot
      */
-    public function __construct($lowUpperBound = 50, $highLowerBound = 90, $generator = '')
+    public function __construct($lowUpperBound = 50, $highLowerBound = 90, $generator = '', $absoluteRoot = null, $projectPrefix = null)
     {
         $this->generator      = $generator;
         $this->highLowerBound = $highLowerBound;
         $this->lowUpperBound  = $lowUpperBound;
+        $this->absoluteRoot   = $absoluteRoot;
+        $this->projectPrefix  = $projectPrefix;
 
         $this->templatePath = sprintf(
             '%s%sHTML%sRenderer%sTemplate%s',
@@ -79,7 +92,9 @@ class PHP_CodeCoverage_Report_HTML
             $this->generator,
             $date,
             $this->lowUpperBound,
-            $this->highLowerBound
+            $this->highLowerBound,
+            $this->absoluteRoot,
+            $this->projectPrefix
         );
 
         $directory = new PHP_CodeCoverage_Report_HTML_Renderer_Directory(
@@ -87,7 +102,9 @@ class PHP_CodeCoverage_Report_HTML
             $this->generator,
             $date,
             $this->lowUpperBound,
-            $this->highLowerBound
+            $this->highLowerBound,
+            $this->absoluteRoot,
+            $this->projectPrefix
         );
 
         $file = new PHP_CodeCoverage_Report_HTML_Renderer_File(
@@ -95,7 +112,9 @@ class PHP_CodeCoverage_Report_HTML
             $this->generator,
             $date,
             $this->lowUpperBound,
-            $this->highLowerBound
+            $this->highLowerBound,
+            $this->absoluteRoot,
+            $this->projectPrefix
         );
 
         $directory->render($report, $target . 'index.html');

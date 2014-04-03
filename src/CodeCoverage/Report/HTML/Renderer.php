@@ -48,6 +48,16 @@ abstract class PHP_CodeCoverage_Report_HTML_Renderer
     protected $version;
 
     /**
+     * @var string
+     */
+    protected $absoluteRoot;
+
+    /**
+     * @var string
+     */
+    protected $projectPrefix;
+
+    /**
      * Constructor.
      *
      * @param string $templatePath
@@ -55,8 +65,10 @@ abstract class PHP_CodeCoverage_Report_HTML_Renderer
      * @param string $date
      * @param int    $lowUpperBound
      * @param int    $highLowerBound
+     * @param string  $absoluteRoot Optional: root path of the sources under analysis
+     * @param string  $projectPrefix Optional: name of project, to display as replacement for absoluteRoot
      */
-    public function __construct($templatePath, $generator, $date, $lowUpperBound, $highLowerBound)
+    public function __construct($templatePath, $generator, $date, $lowUpperBound, $highLowerBound, $absoluteRoot = null, $projectPrefix = null)
     {
         $version = new SebastianBergmann\Version('2.2.4', dirname(dirname(dirname(dirname(__DIR__)))));
 
@@ -66,6 +78,8 @@ abstract class PHP_CodeCoverage_Report_HTML_Renderer
         $this->lowUpperBound  = $lowUpperBound;
         $this->highLowerBound = $highLowerBound;
         $this->version        = $version->getVersion();
+        $this->absoluteRoot   = $absoluteRoot;
+        $this->projectPrefix  = $projectPrefix;
     }
 
     /**
@@ -206,7 +220,7 @@ abstract class PHP_CodeCoverage_Report_HTML_Renderer
     {
         $buffer = sprintf(
             '        <li class="active">%s</li>' . "\n",
-            $node->getName()
+            $this->stripProjectPrefixFromNodeName($node)
         );
 
         if ($node instanceof PHP_CodeCoverage_Report_Node_Directory) {
@@ -216,6 +230,31 @@ abstract class PHP_CodeCoverage_Report_HTML_Renderer
         return $buffer;
     }
 
+    /**
+     * An evolved version of PHP_CodeCoverage_Report_Node::getName(), which replaces
+     *  the optional absoluteRoot prefix in the node's full path, with specified
+     * project name.
+     * @param  PHP_CodeCoverage_Report_Node $node
+     * @return string
+     */
+    protected function stripProjectPrefixFromNodeName(PHP_CodeCoverage_Report_Node $node)
+    {
+        if ($this->absoluteRoot) {
+            return preg_replace(
+                '#^' . $this->absoluteRoot . '#', 
+                $this->projectPrefix, 
+                $node->getName());
+        }
+        else 
+            return $node->getName();
+    }
+
+
+    /**
+     * @param  PHP_CodeCoverage_Report_Node $node
+     * @param  $pathToRoot
+     * @return string
+     */
     protected function getInactiveBreadcrumb(PHP_CodeCoverage_Report_Node $node, $pathToRoot)
     {
         return sprintf(
