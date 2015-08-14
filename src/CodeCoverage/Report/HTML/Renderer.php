@@ -257,7 +257,7 @@ abstract class PHP_CodeCoverage_Report_HTML_Renderer
         return sprintf(
             '        <li><a href="%sindex.html">%s</a></li>' . "\n",
             $pathToRoot,
-            $node->getName()
+            $this->stripProjectPrefixFromNodeName($node)
         );
     }
 
