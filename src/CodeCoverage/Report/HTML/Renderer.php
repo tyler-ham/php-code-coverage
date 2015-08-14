@@ -169,7 +169,7 @@ abstract class PHP_CodeCoverage_Report_HTML_Renderer
         $template->setVar(
             array(
                 'id'               => $node->getId(),
-                'full_path'        => $node->getPath(),
+                'full_path'        => $this->stripProjectPrefixFromNodePath($node),
                 'path_to_root'     => $this->getPathToRoot($node),
                 'breadcrumbs'      => $this->getBreadcrumbs($node),
                 'date'             => $this->date,
@@ -244,6 +244,25 @@ abstract class PHP_CodeCoverage_Report_HTML_Renderer
         }
         else 
             return $node->getName();
+    }
+
+    /**
+     * An evolved version of PHP_CodeCoverage_Report_Node::getName(), which replaces
+     *  the optional absoluteRoot prefix in the node's full path, with specified
+     * project name.
+     * @param  PHP_CodeCoverage_Report_Node $node
+     * @return string
+     */
+    protected function stripProjectPrefixFromNodePath(PHP_CodeCoverage_Report_Node $node)
+    {
+        if ($this->absoluteRoot) {
+            return preg_replace(
+                '#^' . $this->absoluteRoot . '#', 
+                $this->projectPrefix, 
+                $node->getPath());
+        }
+        else 
+            return $node->getPath();
     }
 
 
