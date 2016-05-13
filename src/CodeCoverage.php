@@ -360,7 +360,12 @@ class PHP_CodeCoverage
             foreach ($lines as $line => $data) {
                 if ($data !== null) {
                     if (!isset($this->data[$file][$line])) {
-                        $this->data[$file][$line] = $data;
+                        // workaround for open bracket lines of function being
+                        // marked as uncovered when it should be ignored:
+                        // only merge in $data if it is non-empty
+                        if (!empty($data)) {
+                            $this->data[$file][$line] = $data;
+                        }
                     } else {
                         $this->data[$file][$line] = array_unique(
                             array_merge($this->data[$file][$line], $data)
